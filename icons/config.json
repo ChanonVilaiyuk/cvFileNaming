@@ -1,0 +1,8 @@
+{
+"dir": "dir_icon.png", 
+"ext": 
+    {
+        ".ma": "maya_icon.png", 
+        ".mb": "maya_icon.png"
+    }
+}
