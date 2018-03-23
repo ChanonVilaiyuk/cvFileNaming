@@ -1,6 +1,6 @@
 # v.0.0.1 polytag switcher
 _title = 'cv File Naming Browser'
-_version = 'v.0.2.0'
+_version = 'v.0.2.2'
 _des = 'beta'
 uiName = 'EasySaveUI'
 
@@ -314,11 +314,20 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
     def open_file(self): 
         """ open file """
         item = self.ui.listWidget.currentItem()
-        type, path = item.data(QtCore.Qt.UserRole)
+        if item: 
+            type, path = item.data(QtCore.Qt.UserRole)
 
-        if type == Var.file: 
-            if path and os.path.exists(path) and os.path.splitext(path)[-1][1:] in self.format: 
-                return utils.open_file(path)
+            if type == Var.file: 
+                if path and os.path.exists(path) and os.path.splitext(path)[-1][1:] in self.format: 
+                    if utils.is_scene_modify(): 
+                        result = QtWidgets.QMessageBox.question(self, 'Scene has been modified', 'Do you still want to open?', QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+                        if result == QtWidgets.QMessageBox.Yes: 
+                            return utils.open_file(path)
+                    
+                    else: 
+                        return utils.open_file(path)
+                else: 
+                    QtWidgets.QMessageBox.warning(self, 'Invalid file type', 'Cannot open. Invalid file type')
 
 
     def calculate_version(self, files): 

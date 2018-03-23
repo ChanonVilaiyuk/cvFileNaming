@@ -50,6 +50,9 @@ def save_file(path, format):
     mc.file(rename=path)
     return mc.file(save=True, type=format)
 
+def is_scene_modify(): 
+    return mc.file(q=True, modified=True)
+
 def get_data(var): 
     data = mc.optionVar(q=var)
     if not data: 
