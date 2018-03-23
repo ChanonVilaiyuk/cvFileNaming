@@ -55,6 +55,20 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QPushButton" name="back_pushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="forward_pushButton">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>

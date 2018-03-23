@@ -46,6 +46,11 @@ class Var:
     file = 'file'
     back = 'back'
 
+    # icons 
+    forwardIcon = 'forward_icon.png'
+    backIcon = 'back_icon.png'
+    revIcon = 'rev_icon.png'
+
 
 class SaveBackupPlus(QtWidgets.QMainWindow):
     """SaveBackupPlus"""
@@ -62,7 +67,8 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
         self.format = {'ma': 'mayaAscii', 'mb': 'mayaBinary'}
 
         # cache 
-        self.pathCaches = OrderedDict()
+        self.pathCaches = []
+        self.cacheCount = 0
 
         self.init_functions()
         self.init_signals()
@@ -107,9 +113,11 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
 
 
     def init_functions(self): 
+        self.set_ui()
         self.set_format()
         self.restore_setting()
         self.display_files()
+        self.add_cache(self.get_path())
         self.generate_name()
 
 
@@ -171,6 +179,11 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
         utils.save_data(Var.dataName, data)
         return True
 
+    def set_ui(self): 
+        """ set ui icons """
+        self.ui.forward_pushButton.setIcon(QtGui.QIcon('%s/%s' % (iconDir, Var.forwardIcon)))
+        self.ui.back_pushButton.setIcon(QtGui.QIcon('%s/%s' % (iconDir, Var.backIcon)))
+
 
     def set_format(self): 
         """ set file format """ 
@@ -231,17 +244,17 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
         item = QtWidgets.QListWidgetItem(self.ui.listWidget)
         item.setText(text)
         item.setData(QtCore.Qt.UserRole, data)
+        defaultIcon = iconData.get(Var.ext).get('.*')
 
         if type == Var.folder: 
             iconPath = '%s/%s' % (iconDir, iconData.get(Var.dir))
         
         if type == Var.file: 
             ext = os.path.splitext(text)[-1]
-            iconPath = '%s/%s' % (iconDir, iconData.get(Var.ext).get(ext))
+            iconPath = '%s/%s' % (iconDir, iconData.get(Var.ext).get(ext, defaultIcon))
 
         if type == Var.back: 
-            iconPath = ''
-
+            iconPath = '%s/%s' % (iconDir, Var.revIcon)
 
         if iconPath: 
             iconWidget = QtGui.QIcon()
@@ -250,7 +263,7 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
 
 
     def add_back_item(self, path): 
-        display = '..'
+        display = '...'
         data = [Var.back, os.path.split(path)[0]]
         self.add_item(display, data, Var.back)
 
@@ -350,36 +363,34 @@ class SaveBackupPlus(QtWidgets.QMainWindow):
 
 
     def add_cache(self, inputPath): 
-        for path, status in self.pathCaches.iteritems(): 
-            self.pathCaches[path] = ''
-            if status == 'current': 
-                break 
-        self.pathCaches[inputPath] = 'current'
+        self.pathCaches = self.pathCaches[:self.cacheCount]
+        self.pathCaches.append(inputPath)
+        self.cacheCount = len(self.pathCaches)
+
+
 
     def navigate_back(self): 
-        backPath = ''
-        for path, status in self.pathCaches.iteritems(): 
-            if status == 'current': 
-                break 
-            backPath = path
+        index = self.cacheCount - 1
 
-        if backPath: 
-            self.browse_cache(backPath)
+        if index >= 1: 
+            self.cacheCount = index
+            self.browse_cache(self.pathCaches[index-1])
+
+            self.ui.forward_pushButton.setEnabled(True)
+            if index == 1: 
+                self.ui.back_pushButton.setEnabled(False)
 
 
     def navigate_forward(self): 
-        forwardPath = ''
-        nextBreak = False
-        for path, status in self.pathCaches.iteritems(): 
-            forwardPath = path
-            if nextBreak: 
-                break 
-            if status == 'current': 
-                nextBreak = True  
+        index = self.cacheCount + 1
 
-        if forwardPath: 
-            self.browse_cache(forwardPath)
+        if index <= len(self.pathCaches):
+            self.cacheCount = index
+            self.browse_cache(self.pathCaches[index-1])
 
+            self.ui.back_pushButton.setEnabled(True)
+            if index == len(self.pathCaches): 
+                self.ui.forward_pushButton.setEnabled(False)
 
 
 def show():

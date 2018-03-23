@@ -3,6 +3,10 @@
 "ext": 
     {
         ".ma": "maya_icon.png", 
-        ".mb": "maya_icon.png"
-    }
+        ".mb": "maya_icon.png", 
+        ".*" : "etc_icon.png"
+    }, 
+"forward": "forward_icon.png", 
+"backward": "back_icon.png", 
+"back": "rev_icon.png"
 }
